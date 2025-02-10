@@ -1,75 +1,41 @@
 import allure
-from allure_commons.types import Severity
-from selene import browser, be, have
-from selene.api import s
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service)
+from selene import have, by
 
 
-def test_allure_github_clean():
-    browser.open('https://github.com/')
-    browser.element('.header-search-button').click()
-    browser.element('#query-builder-test').type('/NIKITSTAR/HOMEWORK_10').press_enter()
-    browser.element('a[href="/NIKITSTAR/HOMEWORK_10').should(have.text('NIKITSTAR/HOMEWORK_10')).click()
-    browser.element('#issues-tab').click()
-    browser.element('.env-production').should(have.text('#1'))
+@allure.title("Successful fill form")
+def test_successful(setup_browser):
+    browser = setup_browser
+    first_name = "Alex"
+    last_name = "Egorov"
 
-def test_allure_github_steps():
-    with allure.step("Открываем главную страницу GitHub"):
-        browser.open('https://github.com/')
+    with allure.step("Open registrations form"):
+        browser.open("https://demoqa.com/automation-practice-form")
+        browser.element(".practice-form-wrapper").should(have.text("Student Registration Form"))
+        browser.driver.execute_script("$('footer').remove()")
+        browser.driver.execute_script("$('#fixedban').remove()")
 
-    with allure.step("Ищем репозиторий 'eroshenkoam/allure-example'"):
-        s('.header-search-button').click()
-        s('#query-builder-test').type('eroshenkoam/allure-example').press_enter()
+    with allure.step("Fill form"):
+        browser.element("#firstName").set_value(first_name)
+        browser.element("#lastName").set_value(last_name)
+        browser.element("#userEmail").set_value("alex@egorov.com")
+        browser.element("#genterWrapper").element(by.text("Other")).click()
+        browser.element("#userNumber").set_value("1231231230")
+        # browser.element("#dateOfBirthInput").click()
+        # browser.element(".react-datepicker__month-select").s("July")
+        # browser.element(".react-datepicker__year-select").selectOption("2008")
+        # browser.element(".react-datepicker__day--030:not(.react-datepicker__day--outside-month)").click()
+        browser.element("#subjectsInput").send_keys("Maths")
+        browser.element("#subjectsInput").press_enter()
+        browser.element("#hobbiesWrapper").element(by.text("Sports")).click()
+        # browser.element("#uploadPicture").uploadFromClasspath("img/1.png")
+        browser.element("#currentAddress").set_value("Some street 1")
+        browser.element("#state").click()
+        browser.element("#stateCity-wrapper").element(by.text("NCR")).click()
+        browser.element("#city").click()
+        browser.element("#stateCity-wrapper").element(by.text("Delhi")).click()
+        browser.element("#submit").click()
 
-    with allure.step("Переходим в репозиторий"):
-        s('.search-title').should(have.exact_text('eroshenkoam/allure-example')).click()
-
-    with allure.step("Открываем вкладку Issues"):
-        s('#issues-tab').click()
-
-    with allure.step("Проверяем наличие Issue с текстом 'Тестируем тест'"):
-        s('.ListItem-module__listItem--kHali').should(have.text('Тестируем тест'))
-        s('.ListItem-module__listItem--kHali').should(be.visible)
-
-def test_decorator_steps():
-    open_main_page()
-    search_for_repository("eroshenkoam/allure-example")
-    go_to_repository("eroshenkoam/allure-example")
-    open_issue_tab()
-    should_see_issue_with_number("#76")
-
-@allure.step("Открываем главную страницу")
-def open_main_page():
-    browser.open('https://github.com/')
-
-@allure.step("Ищем репозиторий {repo}")
-def search_for_repository(repo):
-        s('.header-search-button').click()
-        s('#query-builder-test').type('eroshenkoam/allure-example').press_enter()
-
-@allure.step("Переходим по ссылке репозитория {repo}")
-def go_to_repository(repo):
-        s('.search-title').should(have.exact_text('eroshenkoam/allure-example')).click()
-
-@allure.step("Открываем таб Issues")
-def open_issue_tab():
-        s('#issues-tab').click()
-
-
-@allure.step("Проверяем наличие Issue с номером {number}")
-def should_see_issue_with_number(number):
-        s('.ListItem-module__listItem--kHali').should(have.text('Тестируем тест'))
-        s('.ListItem-module__listItem--kHali').should(be.visible)
-
-def test_dynamic_labels():
-    allure.dynamic.tag("web")
-    allure.dynamic.severity(Severity.BLOCKER)
-    allure.dynamic.feature("Задачи в репозитории")
-    allure.dynamic.story("Неавторизованный пользователь не может создать задачу в репозитории")
-    allure.dynamic.link("https://github.com", name="Testing")
-    pass
+    with allure.step("Check form results"):
+        browser.element("#example-modal-sizes-title-lg").should(have.text("Thanks for submitting the form"))
+        # browser.element(".table-responsive").should(
+        #     have.texts(first_name, last_name, "alex@egorov.com", "Some street 1"))
