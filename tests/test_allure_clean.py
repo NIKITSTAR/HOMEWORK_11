@@ -2,7 +2,12 @@ import allure
 from allure_commons.types import Severity
 from selene import browser, be, have
 from selene.api import s
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service)
 
 
 def test_allure_github_clean():
